@@ -9,21 +9,21 @@ with open('R1 COVIDtall.csv', newline='') as csvfile:
 
 #print(data[0])
 
-dagArr = []
-totalArr = []
-nyeArr = []
-totArrLong = []
-totArrSmoothed = []
-totArrSmoothedDer = []
+dagArr = [] # en liste over dager i datasettet
+totalArr = [] # totale mengden folk som har er syke/ har hat covid.
+nyeArr = [] # mengden nye smittede folk per dag
+totArrLong = [] # totalArr utvidet til flere steg med lineær interpolering.
+totArrSmoothed = [] # en glattet-ut versjon av den utvidede Total-mengden med smittede folk.
+totArrSmoothedDer = [] # verdiene til den deriverte av den glattet-ut grafen for totale mengden smittede folk.
 
 for i in range (1,402): # fordi den første linja i filen er info om hva kolonnene er, så vi starter på 0, og range(0,n) itererer opp til n-1, så derfor bruker vi 402, fordi vi har 401 verider (0-400).
     #print(data[i])
     dagArr.append(int(data[i][0]))
-    totalArr.append(int(data[i][1])-126521)
+    totalArr.append(int(data[i][1])-126521) # en verdi-offsett satt på per nå fordi vi er ute etter mengden flere folk som er syke fra starten av datasettet.
     nyeArr.append(int(data[i][2]))
 
-
-def finnGlatt(i):
+tidSub = linspace(0, 400, 800) # en liste for tidsenheter for høyere oppløsning en 0-400 dager, brukes så vi kan få mer presise derivasjons-verider og en glattere graf.
+def interpolerData(i): #interpolerer dataen fra totalArr fra 0-400 dager til 0-x antall tidsenheter, med lineær interpolering. ( funksjonen funker best når x>400) 
     n = i%1
     heltall = int(i//1)
     if (heltall == 400):
@@ -38,10 +38,8 @@ def lerp(a,b,t):
 def derivertTotArrSmoothed(a):
     return (totArrSmoothed[a+1]-totArrSmoothed[a])
 
-tidSub = linspace(0, 400, 800)
-
 for i in tidSub:
-    totArrLong.append(finnGlatt(i))
+    totArrLong.append(interpolerData(i))
 
 
 for i in range(0,len(tidSub)):
